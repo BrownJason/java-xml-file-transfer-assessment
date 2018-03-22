@@ -7,8 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 
 public class ClientHandler implements Runnable {
@@ -37,33 +35,41 @@ public class ClientHandler implements Runnable {
 			System.out.println(dir + " exists!");
 		}
 
-		File file = new File(dir + "\\" + "JasonBrown" + ".xml");
-	
-		if(!file.exists()) {
-			try {
-				file.createNewFile();
-				
-				String newLine;
+		File file;
+		try {
+			file = new File(dir + (incoming.readLine().replace("\\", "").toString()) + ".xml");
+			
+			if(!file.exists()) {
 				try {
-					DataOutputStream writer = new DataOutputStream(new FileOutputStream(file));
-					String nextLine = System.getProperty("line.separator");
-					while((newLine = incoming.readLine()) !=  null) {
-						writer.writeBytes(newLine);
-						writer.writeBytes(nextLine);
-						
-						System.out.println(newLine);
-					}
+					file.createNewFile();
 					
-					writer.flush();
-					writer.close();
+					String newLine;
+					try {
+						DataOutputStream writer = new DataOutputStream(new FileOutputStream(file));
+						String nextLine = System.getProperty("line.separator");
+						while((newLine = incoming.readLine()) !=  null) {
+							writer.writeBytes(newLine);
+							writer.writeBytes(nextLine);
+							
+							System.out.println(newLine);
+						}
+						
+						writer.flush();
+						writer.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+			} else {
+				System.out.println("File exists!");
 			}
-		} else {
-			System.out.println("File exists!");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+	
+		
 	}
 }

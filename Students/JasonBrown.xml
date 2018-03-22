@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><Students>
-    <New_Student>
-        <Username><![CDATA[Jason Brown]]></Username>
-        <Date><![CDATA[2018-03-22]]></Date>
-        <FileName><![CDATA[JasonBrown.txt]]></FileName>
-        <Content_Of_File><![CDATA[some random words here to test]]></Content_Of_File>
-    </New_Student>
-</Students>

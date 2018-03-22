@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -27,25 +28,59 @@ public class Client {
 	
 	TransformerHandler th;
 	
-	public void readFile() {
-		try {
-			File file = new File("JasonBrown");
-			if(!file.exists()) {
-				System.out.println("File does not exist!");
-			} else {
-				System.out.println("Retrieving file and Converting to XML");
-				reading = new BufferedReader(new FileReader("JasonBrown"));
-				output = new StreamResult("Jason.xml");
-				fileToXML();
-				String newLine;
-				while((newLine = reading.readLine()) != null) {
-					convertToXml(newLine);
+	public void readFile() throws UnknownHostException, IOException {
+		try(Socket sock = new Socket("localhost", 10101)){
+			try {
+				
+				try {
+					Files.list(Paths.get(".")).forEach(System.out::println);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
-				reading.close();
-				closeXML();
+				
+				String filename = null;
+				String Path = "C:\\Users\\ftd-01\\code\\FileTransfer";
+				BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+				if(reader.readLine() != null) {
+					filename = reader.readLine().toString();
+					File file = new File(Path + filename);
+					
+					if(!file.exists()) {
+						System.out.println("File does not exist!");
+					} else {
+						System.out.println("Retrieving file and Converting to XML");
+						reading = new BufferedReader(new FileReader(file));
+						output = new StreamResult(file + ".xml");
+						fileToXML();
+						String line;
+						
+						while((line = reading.readLine()) != null) {
+							convertToXml(line);
+						}
+						reading.close();
+						closeXML();
+						
+						BufferedReader reading = new BufferedReader(new FileReader(file));
+						BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+						
+						if(!file.exists()) {
+							System.out.println("File does not exist!");
+						}
+				
+						String newLine;
+						while((newLine = reading.readLine()) != null) {
+							writer.write(newLine + '\n');
+							writer.flush();
+						}	
+						reading.close();
+					}
+				}  else {
+					System.out.println("Couldn't do it!");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -94,33 +129,6 @@ public class Client {
 	}
 	
 	public static void main(String[] args) throws UnknownHostException, IOException, JAXBException {
-		try(Socket sock = new Socket("localhost", 10101)){
-		
-			new Client().readFile();
-			
-			try {
-				Files.list(Paths.get(".")).forEach(System.out::println);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			File file = new File("Jason.xml");
-			
-			BufferedReader reading = new BufferedReader(new FileReader(file));
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
-			
-			if(!file.exists()) {
-				System.out.println("File does not exist!");
-			}
-	
-			String newLine;
-			while((newLine = reading.readLine()) != null) {
-				writer.write(newLine + '\n');
-				writer.flush();
-			}	
-
-			reading.close();
-		}
+		new Client().readFile();
 	}
 }
